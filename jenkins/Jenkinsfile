@@ -1,4 +1,5 @@
 node {
+        checkout scm
         stage('Build') {
             docker.image('python:3.12.1-alpine3.19').inside {
                 sh 'python -m py_compile sources/add2vals.py sources/calc.py'
@@ -14,16 +15,15 @@ node {
         }
 
         stage('Deliver') {
-            environment {
-                VOLUME = "${pwd()}/sources:/src"
-                IMAGE = 'cdrx/pyinstaller-linux:python2'
-            }
+            env.VOLUME = "${pwd()}/sources:/src"
+            env.IMAGE = 'cdrx/pyinstaller-linux:python2'
+
             dir("${env.BUILD_ID}") {
                 unstash 'compiled-results'
-                sh "docker run --rm -v ${VOLUME} ${IMAGE} 'pyinstaller -F add2vals.py'"
+                sh "docker run --rm -v ${env.VOLUME} ${env.IMAGE} 'pyinstaller -F add2vals.py'"
             }
 
             archiveArtifacts "${env.BUILD_ID}/sources/dist/add2vals"
-            sh "docker run --rm -v ${VOLUME} ${IMAGE} 'rm -rf build dist'"
+            sh "docker run --rm -v ${env.VOLUME} ${env.IMAGE} 'rm -rf build dist'"
         }
 }
