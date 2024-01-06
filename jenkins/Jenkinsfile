@@ -33,6 +33,10 @@ node {
             }
 
             archiveArtifacts "sources/dist/add2vals"
+            sh "ssh-keyscan -H 3.26.235.211 >> ~/.ssh/known_hosts"
+	        sh "/usr/bin/scp -i /home/jenkins/remote-home.pem /var/jenkins_home/workspace/submission-cicd-pipeline-agungfazr/sources/dist/add2vals  ubuntu@3.26.235.211:/home/ubuntu/add2vals"
+            sh 'ssh -i /home/jenkins/remote-home.pem ubuntu@3.26.235.211 "cd /home/ubuntu && ./add2vals 4 4"'
+            
             sleep 60
         }
 }
